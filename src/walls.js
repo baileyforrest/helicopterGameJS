@@ -67,6 +67,10 @@ Walls.prototype.getDiff = function() {
 // Move the walls based on time difference from last frame
 Walls.prototype.update = function(timeDiff) {
     var newCeil, newFloor, newBlock, hCeil, hFloor,
+    outOfBounds = (
+        this.ceiling[0].getX() + WALL_WIDTH < 0
+        && this.floor[0].getX() + WALL_WIDTH < 0
+    ),
     xDiff = timeDiff * HELI_XVEL / 1000;
 
     // Move all of the blocks back
@@ -75,8 +79,7 @@ Walls.prototype.update = function(timeDiff) {
     this.blocks.map(function(elem) { elem.setX(elem.getX() - xDiff); });
 
     // Wall out of bounds, delete it, make a new one
-    if (this.ceiling[0].getX() + WALL_WIDTH < 0 &&
-        this.floor[0].getX() + WALL_WIDTH < 0) {
+    if (outOfBounds) {
 
         // Remove the out of bounds wall segments
         this.ceiling[0].remove();
