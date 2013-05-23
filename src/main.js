@@ -3,15 +3,18 @@
  *
  */
 
+// Create the stage
 var stage = new Kinetic.Stage({
     container: 'container',
     width: STAGE_WIDTH,
     height: STAGE_HEIGHT
 });
 
+
 var background = new Kinetic.Layer();
 var layer = new Kinetic.Layer();
 
+// Black background
 var bg = new Kinetic.Rect({
     x: 0,
     y: 0,
@@ -30,6 +33,7 @@ background.add(bg);
 stage.add(background);
 stage.add(layer);
 
+// Event handlers for the mouse
 stage.on('mousedown', function() {
     helicopter.toggleThrust();
 });
@@ -38,7 +42,7 @@ stage.on('mouseup', function() {
     helicopter.toggleThrust();
 });
 
-
+// Handle updates for each frame
 var anim = new Kinetic.Animation(
     function(frame) {
         helicopter.doMove(frame.timeDiff);

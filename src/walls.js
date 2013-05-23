@@ -4,24 +4,33 @@
  */
 
 var WALL_WIDTH = 40; // width of wall segments
+
+// Number of walls in the width of the screen
 var NUM_WALLS = Math.round((STAGE_WIDTH / WALL_WIDTH) + .5);
-var STARTING_GAPS = 25; 
-var STARTING_HEIGHT = STAGE_HEIGHT - 2 * STARTING_GAPS;
+var STARTING_GAPS = 25; // Starting height of the ceiling and floor
+
+// Starting distance between floor and ceiling
+var STARTING_HEIGHT = STAGE_HEIGHT - 2 * STARTING_GAPS; 
+
+// Every BLOCK_INTERVAL wall blocks, put a block in the middle
 var BLOCK_INTERVAL = 10;
-var BLOCK_HEIGHT = 120;
-var MAX_DIFF = 20;
+var BLOCK_HEIGHT = 120; // Height of blocks in the middle
+var MAX_DIFF = 20; // Max difference for the between wall sections
 
 function Walls(layer) {
     this.ceiling = new Array();
     this.floor = new Array();
     this.blocks = new Array();
     this.layer = layer;
-    this.newCnt = 0;
-    this.height = STARTING_HEIGHT;
-    this.direction = 1;
-    this.ceilY = STARTING_GAPS;
-    this.interval = this.getDiff();
+    this.newCnt = 0; // Keep track of walls added
+    this.height = STARTING_HEIGHT; // current distance between floor/ceiling
+    this.direction = 1; // direction of the wall change
+    this.ceilY = STARTING_GAPS; // height of ceiling
+    this.interval = this.getDiff(); // interval of wall changes
 
+
+
+    // Initialize the floor and ceiling
     var startx = 0;
     for (var i = 0; i < NUM_WALLS + 2; i++, startx += WALL_WIDTH) {
         this.ceiling.push(new Kinetic.Rect({
@@ -50,11 +59,12 @@ Walls.prototype.addAllWallsLayer = function() {
     this.floor.map(function(elem) { this.layer.add(elem) });
 }
 
+// Get a step amount for the ceiling and floor
 Walls.prototype.getDiff = function() {
     return MAX_DIFF * Math.random() + 2;
 }
 
-// Move the walls based on the speed
+// Move the walls based on time difference from last frame
 Walls.prototype.update = function(timeDiff) {
     var newCeil, newFloor, newBlock, hCeil, hFloor,
     xDiff = timeDiff * HELI_XVEL / 1000;
@@ -64,16 +74,18 @@ Walls.prototype.update = function(timeDiff) {
     this.floor.map(function(elem) { elem.setX(elem.getX() - xDiff) });
     this.blocks.map(function(elem) { elem.setX(elem.getX() - xDiff) });
 
-    console.log(this.layer.getChildren().length);
-
     // Wall out of bounds, delete it, make a new one
     if (this.ceiling[0].getX() + WALL_WIDTH < 0 &&
         this.floor[0].getX() + WALL_WIDTH < 0) {
+
+        // Remove the out of bounds wall segments
         this.ceiling[0].remove();
         this.floor[0].remove();
         this.ceiling.shift();
         this.floor.shift();
 
+        // Y coordinate for new wall segment.
+        // New walls appear in zig-zag pattern
         this.ceilY += this.interval * this.direction;
         if (this.ceilY < 0 || this.ceilY + this.height > STAGE_HEIGHT) {
             this.ceilY -= this.interval * this.direction;
@@ -87,7 +99,7 @@ Walls.prototype.update = function(timeDiff) {
 
         // Add a new block if its time
         if (++this.newCnt == BLOCK_INTERVAL) {
-            this.height--; // for each new block, less room remains
+            this.height--; // for each new block, less space between floor/ceil
             this.newCnt = 0;
             newBlock = new Kinetic.Rect({
                 x: this.ceiling[this.ceiling.length - 1].getX() + WALL_WIDTH,
@@ -101,7 +113,7 @@ Walls.prototype.update = function(timeDiff) {
             this.layer.add(newBlock);
         }
 
-        // Add ceiling
+        // Add new ceiling segment
         newCeil = new Kinetic.Rect({
             x: this.ceiling[this.ceiling.length - 1].getX() + WALL_WIDTH,
             y: 0,
@@ -112,7 +124,7 @@ Walls.prototype.update = function(timeDiff) {
         this.ceiling.push(newCeil);
         this.layer.add(newCeil); // Add the new block to the layer
 
-        // Add floor
+        // Add new floor segment
         newFloor = new Kinetic.Rect({
             x: this.ceiling[this.ceiling.length - 1].getX() + WALL_WIDTH,
             y: STAGE_HEIGHT - hFloor,
