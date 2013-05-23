@@ -3,6 +3,13 @@
  *
  */
 
+function reset() {
+    layer.removeChildren();
+    helicopter = new Helicopter();
+    walls = new Walls(layer);
+    layer.add(helicopter.view);
+}
+
 // Create the stage
 var stage = new Kinetic.Stage({
     container: 'container',
@@ -23,23 +30,23 @@ var bg = new Kinetic.Rect({
     fill: 'black'
 });
 
-
-var helicopter = new Helicopter();
-var walls = new Walls(layer);
-
-layer.add(helicopter.view);
 background.add(bg);
-
 stage.add(background);
 stage.add(layer);
 
+var helicopter;
+var walls;
+
+reset();
+
+
 // Event handlers for the mouse
 stage.on('mousedown', function() {
-    helicopter.toggleThrust();
+    helicopter.thrustOn();
 });
 
 stage.on('mouseup', function() {
-    helicopter.toggleThrust();
+    helicopter.thrustOff();
 });
 
 // Handle updates for each frame
@@ -47,8 +54,12 @@ var anim = new Kinetic.Animation(
     function(frame) {
         helicopter.doMove(frame.timeDiff);
         walls.update(frame.timeDiff);
+        
+        if(helicopter.isCrashed(walls)) {
+            reset();
+        }
+
+        //console.log(helicopter.isCrashed(walls));
     }, layer);
 
 anim.start();
-
-
