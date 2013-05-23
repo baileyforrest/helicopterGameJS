@@ -3,6 +3,13 @@
  *
  */
 
+var SCORE_OFFSET = 25;
+
+var helicopter;
+var walls;
+var gameOver;
+var score, highScore = 0;
+
 function reset() {
     layer.removeChildren();
     helicopter = new Helicopter();
@@ -20,6 +27,8 @@ function reset() {
     });
 
     gameOver = false;
+
+    score = 0;
 }
 
 // Create the stage
@@ -32,6 +41,7 @@ var stage = new Kinetic.Stage({
 
 var background = new Kinetic.Layer();
 var layer = new Kinetic.Layer();
+var stats = new Kinetic.Layer();
 
 // Black background
 var bg = new Kinetic.Rect({
@@ -42,15 +52,39 @@ var bg = new Kinetic.Rect({
     fill: 'black'
 });
 
+var scoreLabel = new Kinetic.Text({
+    x: SCORE_OFFSET,
+    y: STAGE_HEIGHT - SCORE_OFFSET,
+    text: 'Score: 0',
+    fontSize: 20,
+    fontFamily: 'monospace',
+    fill: 'cyan'
+});
+
+var kinHighScore = new Kinetic.Text({
+    x: STAGE_WIDTH - 5 * SCORE_OFFSET,
+    y: STAGE_HEIGHT - SCORE_OFFSET,
+    text: 'Best: 0',
+    fontSize: 20,
+    fontFamily: 'monospace',
+    fill: 'cyan'
+});
+
 background.add(bg);
+stats.add(scoreLabel);
+stats.add(kinHighScore);
+
 stage.add(background);
 stage.add(layer);
-
-var helicopter;
-var walls;
-var gameOver;
+stage.add(stats);
 
 reset();
+
+var scoreAnim = new Kinetic.Animation(
+    function(frame) {
+        scoreLabel.setText("Score: " + Math.round(score));        
+        kinHighScore.setText("Best: " + Math.round(highScore));
+    }, stats);
 
 // Handle updates for each frame
 var anim = new Kinetic.Animation(
@@ -59,12 +93,18 @@ var anim = new Kinetic.Animation(
         if(!gameOver) { // Only update the game if still running
             helicopter.doMove(frame.timeDiff);
             walls.update(frame.timeDiff);
+            score += frame.timeDiff * POINTS_PER_SECOND / 1000;
+
+
         }
         
 
         if(helicopter.isCrashed(walls)) {
             gameOver = true;
-            console.log("got here");
+
+            if(score > highScore) {
+                highScore = score;
+            }
 
             stage.off('mousedown');
             stage.on('mousedown', function() {
@@ -77,3 +117,4 @@ var anim = new Kinetic.Animation(
     }, layer);
 
 anim.start();
+scoreAnim.start();
