@@ -18,9 +18,9 @@ var BLOCK_HEIGHT = 120; // Height of blocks in the middle
 var MAX_DIFF = 20; // Max difference for the between wall sections
 
 function Walls(layer) {
-    this.ceiling = new Array();
-    this.floor = new Array();
-    this.blocks = new Array();
+    this.ceiling = [];
+    this.floor = [];
+    this.blocks = [];
     this.layer = layer;
     this.newCnt = 0; // Keep track of walls added
     this.height = STARTING_HEIGHT; // current distance between floor/ceiling
