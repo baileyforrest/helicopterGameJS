@@ -55,14 +55,14 @@ function Walls(layer) {
 
 // Add all of the blocks in the walls to the layer
 Walls.prototype.addAllWallsLayer = function() {
-    this.ceiling.map(function(elem) { this.layer.add(elem) });
-    this.floor.map(function(elem) { this.layer.add(elem) });
-}
+    this.ceiling.map(function(elem) { this.layer.add(elem); });
+    this.floor.map(function(elem) { this.layer.add(elem); });
+};
 
 // Get a step amount for the ceiling and floor
 Walls.prototype.getDiff = function() {
     return MAX_DIFF * Math.random() + 2;
-}
+};
 
 // Move the walls based on time difference from last frame
 Walls.prototype.update = function(timeDiff) {
@@ -70,9 +70,9 @@ Walls.prototype.update = function(timeDiff) {
     xDiff = timeDiff * HELI_XVEL / 1000;
 
     // Move all of the blocks back
-    this.ceiling.map(function(elem) { elem.setX(elem.getX() - xDiff) });
-    this.floor.map(function(elem) { elem.setX(elem.getX() - xDiff) });
-    this.blocks.map(function(elem) { elem.setX(elem.getX() - xDiff) });
+    this.ceiling.map(function(elem) { elem.setX(elem.getX() - xDiff); });
+    this.floor.map(function(elem) { elem.setX(elem.getX() - xDiff); });
+    this.blocks.map(function(elem) { elem.setX(elem.getX() - xDiff); });
 
     // Wall out of bounds, delete it, make a new one
     if (this.ceiling[0].getX() + WALL_WIDTH < 0 &&
@@ -143,4 +143,4 @@ Walls.prototype.update = function(timeDiff) {
             this.blocks.shift();
         }
     }
-}
+};
