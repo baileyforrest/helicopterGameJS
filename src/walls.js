@@ -2,15 +2,16 @@
  * walls.js - Walls for the helicopter game
  *
  */
+/*global STAGE_WIDTH, STAGE_HEIGHT, Kinetic, HELI_XVEL*/
 
 var WALL_WIDTH = 40; // width of wall segments
 
 // Number of walls in the width of the screen
-var NUM_WALLS = Math.round((STAGE_WIDTH / WALL_WIDTH) + .5);
+var NUM_WALLS = Math.round((STAGE_WIDTH / WALL_WIDTH) + 0.5);
 var STARTING_GAPS = 25; // Starting height of the ceiling and floor
 
 // Starting distance between floor and ceiling
-var STARTING_HEIGHT = STAGE_HEIGHT - 2 * STARTING_GAPS; 
+var STARTING_HEIGHT = STAGE_HEIGHT - 2 * STARTING_GAPS;
 
 // Every BLOCK_INTERVAL wall blocks, put a block in the middle
 var BLOCK_INTERVAL = 10;
@@ -18,6 +19,7 @@ var BLOCK_HEIGHT = 120; // Height of blocks in the middle
 var MAX_DIFF = 20; // Max difference for the between wall sections
 
 function Walls(layer) {
+    "use strict";
     this.ceiling = [];
     this.floor = [];
     this.blocks = [];
@@ -28,11 +30,9 @@ function Walls(layer) {
     this.ceilY = STARTING_GAPS; // height of ceiling
     this.interval = this.getDiff(); // interval of wall changes
 
-
-
     // Initialize the floor and ceiling
-    var startx = 0;
-    for (var i = 0; i < NUM_WALLS + 2; i++, startx += WALL_WIDTH) {
+    var startx = 0, i;
+    for (i = 0; i < NUM_WALLS + 2; i += 1, startx += WALL_WIDTH) {
         this.ceiling.push(new Kinetic.Rect({
             x: startx,
             y: 0,
@@ -54,29 +54,33 @@ function Walls(layer) {
 }
 
 // Add all of the blocks in the walls to the layer
-Walls.prototype.addAllWallsLayer = function() {
-    this.ceiling.map(function(elem) { this.layer.add(elem); });
-    this.floor.map(function(elem) { this.layer.add(elem); });
+Walls.prototype.addAllWallsLayer = function () {
+    "use strict";
+    var self = this;
+    this.ceiling.map(function (elem) { self.layer.add(elem); });
+    this.floor.map(function (elem) { self.layer.add(elem); });
 };
 
 // Get a step amount for the ceiling and floor
-Walls.prototype.getDiff = function() {
+Walls.prototype.getDiff = function () {
+    "use strict";
     return MAX_DIFF * Math.random() + 2;
 };
 
 // Move the walls based on time difference from last frame
-Walls.prototype.update = function(timeDiff) {
-    var newCeil, newFloor, newBlock, hCeil, hFloor,
+Walls.prototype.update = function (timeDiff) {
+    "use strict";
+    var newCeil, newFloor, newBlock, hCeil, hFloor, outOfBounds, xDiff;
     outOfBounds = (
-        this.ceiling[0].getX() + WALL_WIDTH < 0
-        && this.floor[0].getX() + WALL_WIDTH < 0
-    ),
+        this.ceiling[0].getX() + WALL_WIDTH < 0 &&
+            this.floor[0].getX() + WALL_WIDTH < 0
+    );
     xDiff = timeDiff * HELI_XVEL / 1000;
 
     // Move all of the blocks back
-    this.ceiling.map(function(elem) { elem.setX(elem.getX() - xDiff); });
-    this.floor.map(function(elem) { elem.setX(elem.getX() - xDiff); });
-    this.blocks.map(function(elem) { elem.setX(elem.getX() - xDiff); });
+    this.ceiling.map(function (elem) { elem.setX(elem.getX() - xDiff); });
+    this.floor.map(function (elem) { elem.setX(elem.getX() - xDiff); });
+    this.blocks.map(function (elem) { elem.setX(elem.getX() - xDiff); });
 
     // Wall out of bounds, delete it, make a new one
     if (outOfBounds) {
@@ -101,8 +105,9 @@ Walls.prototype.update = function(timeDiff) {
         hFloor = STAGE_HEIGHT - this.height - hCeil;
 
         // Add a new block if its time
-        if (++this.newCnt == BLOCK_INTERVAL) {
-            this.height--; // for each new block, less space between floor/ceil
+        this.newCnt += 1;
+        if (this.newCnt === BLOCK_INTERVAL) {
+            this.height -= 1; // less space between floor/ceil with each block
             this.newCnt = 0;
             newBlock = new Kinetic.Rect({
                 x: this.ceiling[this.ceiling.length - 1].getX() + WALL_WIDTH,
